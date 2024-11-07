@@ -46,3 +46,11 @@ pub fn load_stations() -> Result<HashMap<String, StationConfig>, serde_yaml::Err
     let yaml: serde_yaml::Value = serde_yaml::from_str(&config_str)?;
     serde_yaml::from_value(yaml["local_stations"].clone())
 }
+
+#[derive(Debug, Deserialize)]
+pub struct ArrivalData {
+    pub station: StationConfig,
+    pub arrival: String,
+    pub arrival_mins: i32,
+    pub destination: String,
+}

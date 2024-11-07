@@ -2,7 +2,7 @@ use dotenv::dotenv;
 use std;
 use reqwest;
 use rustpi_train_sign::{
-    config::{BASE, StationConfig, load_stations},
+    models::{BASE, StationConfig, load_stations},
     utils::{generate_url, UrlParams},
 };
 
@@ -42,7 +42,6 @@ fn config_endpoints() {
     dotenv().ok();
 
     let tfl_api_key = std::env::var("TFL_API_KEY").expect("TFL_API_KEY not found");
-
 
     let mut all_passed = true;
     let stations = load_stations().expect("Failed to load stations");
