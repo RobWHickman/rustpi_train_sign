@@ -10,7 +10,7 @@ pub struct UrlParams<'a> {
 pub fn generate_url(params: UrlParams) -> Result<String, url::ParseError> {
     let mut url = url::Url::parse(params.base_url)?;
     url.path_segments_mut()
-        .map_err(|_| url::ParseError::InvalidBaseUrl)?
+        .map_err(|_| url::ParseError::EmptyHost)?
         .pop_if_empty()
         .push(params.endpoint.trim_start_matches('/'));
     

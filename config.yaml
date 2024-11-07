@@ -1,0 +1,30 @@
+base_url: "https://api.tfl.gov.uk:443"
+
+local_stations:
+  palmers_green_stop_h:
+    id: "490010736H"
+    name: "Palmers Green"
+    short_name: "Opposite Triangle"
+    mode: "bus"
+    services:
+      - route: "329"
+        direction: "Wood Green"
+      - route: "121"
+        direction: "Wood Green, Enfield Lock"
+
+  wood_green_underground:
+    id: "490001222E"
+    name: "Wood Green"
+    short_name: "Wood Green"
+    mode: "tube"
+    services:
+      - line: "Piccadilly"
+        direction: "Westbound"
+
+  # palmers_green_railway:
+  #   id: "490G000097H"
+  #   name: "Palmers Green Railway Station"
+  #   short_name: "Palmers Green"
+  #   mode: "rail"
+  #   services:
+  #     - platforms: [1, 2]
