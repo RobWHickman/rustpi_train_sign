@@ -3,6 +3,7 @@ use lazy_static::lazy_static;
 use serde_yaml;
 use std::fs;
 use std::collections::HashMap;
+use chrono::{DateTime, Utc};
 
 #[derive(Debug, Deserialize)]
 pub struct Base {
@@ -22,21 +23,18 @@ lazy_static! {
     pub static ref BASE: Base = Base::new();
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct StationConfig {
     pub id: String,
     pub name: String,
-    pub short_name: String,
     pub mode: String,
     pub services: Vec<ServiceConfig>,
 }
 
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-pub enum ServiceConfig {
-    Bus { route: String, direction: String },
-    Tube { line: String, direction: String },
-    Rail { platforms: Vec<i32> },
+#[derive(Debug, Deserialize, Clone)]
+pub struct ServiceConfig {
+    pub line: String,
+    pub platform: String,
 }
 
 pub fn load_stations() -> Result<HashMap<String, StationConfig>, serde_yaml::Error> {
@@ -49,8 +47,20 @@ pub fn load_stations() -> Result<HashMap<String, StationConfig>, serde_yaml::Err
 
 #[derive(Debug, Deserialize)]
 pub struct ArrivalData {
-    pub station: StationConfig,
-    pub arrival: String,
-    pub arrival_mins: i32,
-    pub destination: String,
+    #[serde(rename = "expectedArrival")]
+    pub expected_arrival: DateTime<Utc>,
+    #[serde(rename = "timeToStation", deserialize_with = "deserialize_minutes")]
+    pub time_to_station: i32,
+    #[serde(rename = "destinationName")]
+    pub destination_name: String,
+    #[serde(skip)]
+    pub station: Option<StationConfig>,
+}
+
+fn deserialize_minutes<'de, D>(deserializer: D) -> Result<i32, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let seconds: i32 = serde::Deserialize::deserialize(deserializer)?;
+    Ok(seconds / 60)
 }

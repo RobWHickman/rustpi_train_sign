@@ -16,7 +16,6 @@ fn single_endpoint() {
     let test_station = StationConfig {
         name: "Wood Green".to_string(),
         id: "490001222E".to_string(),
-        short_name: "Wood Green".to_string(),
         mode: "tube".to_string(),
         services: vec![],
     };
@@ -57,6 +56,7 @@ fn config_endpoints() {
 
     
         let request_url: String = generate_url(params).unwrap();
+        println!("Requesting: {}", request_url);
 
         match reqwest::blocking::get(&request_url) {
             Ok(response) => {
