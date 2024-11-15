@@ -53,8 +53,6 @@ pub struct ArrivalData {
     pub expected_arrival: DateTime<Utc>,
     #[serde(rename = "timeToStation", deserialize_with = "ArrivalData::deserialize_minutes")]
     pub time_to_station: i32,
-    #[serde(rename = "destinationName")]
-    pub destination_name: String,
     #[serde(skip)]
     pub station: Option<StationConfig>,
 }
