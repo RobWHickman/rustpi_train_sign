@@ -85,7 +85,10 @@ pub fn parse_arrivals(record: serde_json::Value, station: &StationConfig) -> Res
                 services: vec![ServiceConfig {
                     line: arrival["lineId"].as_str()?.to_string(),
                     platform: arrival["platformName"].as_str()?.to_string(),
-                    direction,
+                    direction: direction,
+                    short_direction: Some(ArrivalData::shorten_destination_names(
+                        arrival["destinationName"].as_str()?
+                    )),
                 }],
             };
             arrival_data.station = Some(station_config);

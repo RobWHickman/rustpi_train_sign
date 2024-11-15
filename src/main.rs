@@ -25,10 +25,10 @@ fn main() {
                 station.services[0].direction.as_ref().unwrap(),
                 arrival),
             "bus" => println!("{}: {} {}, {}",
-            station.short_name,
-            station.services[0].line,
-            station.services[0].direction.as_ref().unwrap(),
-            arrival),
+                station.short_name,
+                station.services[0].line,
+                station.services[0].short_direction.as_ref().unwrap(),
+                arrival),
             _ => println!("Unknown mode: {}", station.mode)
         }
     }

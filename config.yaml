@@ -1,5 +1,11 @@
 base_url: "https://api.tfl.gov.uk:443"
 
+destinations:
+  "Turnpike Lane Station": "Trnpike Ln"
+  "Wood Green Underground Station": "Wd Grn"
+  "Arnos Grove Underground Station": "Arnos"
+  "Bounds Green Underground Station": "Bnd Gn"
+
 local_stations:
   wood_green_underground:
     id: "940GZZLUWOG"

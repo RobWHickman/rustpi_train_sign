@@ -19,8 +19,38 @@ impl Base {
     }
 }
 
+#[derive(Debug, Deserialize)]
+pub struct StationNames {
+    pub destinations: HashMap<String, String>,
+}
+
+impl StationNames {
+    pub fn new() -> Self {
+        let config_str = fs::read_to_string("config.yaml")
+            .expect("Failed to read config.yaml");
+        let yaml: serde_yaml::Value = serde_yaml::from_str(&config_str)
+            .expect("Failed to parse yaml");
+        
+        let destinations = yaml["destinations"].as_mapping()
+            .expect("Failed to get destinations mapping")
+            .iter()
+            .map(|(k, v)| {
+                (
+                    k.as_str().unwrap().to_string(),
+                    v.as_str().unwrap().to_string()
+                )
+            })
+            .collect();
+
+        StationNames {
+            destinations
+        }
+    }
+}
+
 lazy_static! {
     pub static ref BASE: Base = Base::new();
+    pub static ref STATION_NAMES: StationNames = StationNames::new();
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -37,6 +67,7 @@ pub struct ServiceConfig {
     pub line: String,
     pub platform: String,
     pub direction: Option<String>,
+    pub short_direction: Option<String>,
 }
 
 pub fn load_stations() -> Result<HashMap<String, StationConfig>, serde_yaml::Error> {
@@ -73,6 +104,13 @@ impl ArrivalData {
     pub fn sort_by_time(mut arrivals: Vec<ArrivalData>) -> Vec<ArrivalData> {
         arrivals.sort_by_key(|a| a.time_to_station);
         arrivals
+    }
+
+    pub fn shorten_destination_names(destination: &str) -> String {
+        STATION_NAMES.destinations
+            .get(destination)
+            .cloned()
+            .unwrap_or_else(|| destination.to_string())
     }
 }
 
