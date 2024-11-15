@@ -4,23 +4,30 @@ local_stations:
   wood_green_underground:
     id: "940GZZLUWOG"
     name: "Wood Green"
-    short_name: "Wood Green"
+    short_name: "Wd Grn"
     code: "WGN"
     mode: "tube"
     services:
       - line: "piccadilly"
         platform: "WestBound - Platform 2"
+        direction: "West"
+      - line: "piccadilly"
+        platform: "EastBound - Platform 1"
+        direction: "East"
 
   palmers_green_stop_h:
     id: "490010736H"
     name: "Palmers Green"
-    short_name: "Opposite Triangle"
+    short_name: "Trngle"
     code: ""
     mode: "bus"
     services:
       - line: "329"
         platform: "H"
+        direction: 
       - line: "121"
+        platform: "H"
+      - line: "n29"
         platform: "H"
 
 # https://api.tfl.gov.uk/line/mode/national-rail/status

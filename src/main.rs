@@ -20,15 +20,13 @@ fn main() {
     for arrival in all_arrivals {
         let station = arrival.station.as_ref().expect("Station should be present");
         match station.mode.as_str() {
-            "tube" => println!("Next train to {} arrives at {} in {} minutes", 
-                arrival.destination_name, 
-                station.name,
-                arrival.time_to_station),
-            "bus" => println!("Next bus on route {} towards {} arrives at {} in {} minutes",
+            "tube" => println!("{}, {}", 
+                station.short_name,
+                arrival),
+            "bus" => println!("{} {}, {}",
                 station.services[0].line,
-                arrival.destination_name, 
-                station.name,
-                arrival.time_to_station),
+                station.short_name,
+                arrival),
             _ => println!("Unknown mode: {}", station.mode)
         }
     }

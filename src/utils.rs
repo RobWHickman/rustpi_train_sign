@@ -1,7 +1,7 @@
 // takes in parameters and generates a url to a tfl endpoint
 use url;
 use crate::models::{ArrivalData, StationConfig, ServiceConfig};
-use reqwest;
+use ureq;
 use dotenv;
 use serde_json;
 use crate::error::TransportApiError;
@@ -25,8 +25,9 @@ pub fn make_request(station_details: StationConfig) -> Result<serde_json::Value,
     };
 
     let request_url = generate_url(station_url_params)?;
-    let response = reqwest::blocking::get(&request_url)?;
-    let record: serde_json::Value = response.json()?;
+    let response = ureq::get(&request_url)
+        .call()?;
+    let record: serde_json::Value = response.into_json()?;  // Changed from json() to into_json()
     Ok(record)
 }
 
@@ -63,14 +64,28 @@ pub fn parse_arrivals(record: serde_json::Value, station: &StationConfig) -> Res
             })
         })
         .filter_map(|arrival| {
+            let mode = arrival["modeName"].as_str()?;
             let mut arrival_data: ArrivalData = serde_json::from_value(arrival.clone()).ok()?;
+            let service_config = station.services.iter().find(|service| {
+                arrival["lineId"].as_str() == Some(&service.line) && 
+                arrival["platformName"].as_str() == Some(&service.platform)
+            })?;
+
+            let direction = match mode {
+                "tube" => service_config.direction.clone(),
+                "bus" => Some(arrival["destinationName"].as_str()?.to_string()),
+                _ => None,
+            };
+
             let station_config = StationConfig {
                 id: arrival["naptanId"].as_str()?.to_string(),
                 name: arrival["stationName"].as_str()?.to_string(),
-                mode: arrival["modeName"].as_str()?.to_string(),
+                short_name: station.short_name.clone(),
+                mode: mode.to_string(),
                 services: vec![ServiceConfig {
                     line: arrival["lineId"].as_str()?.to_string(),
                     platform: arrival["platformName"].as_str()?.to_string(),
+                    direction,  // Use our determined direction
                 }],
             };
             arrival_data.station = Some(station_config);
@@ -78,7 +93,7 @@ pub fn parse_arrivals(record: serde_json::Value, station: &StationConfig) -> Res
         })
         .collect();
 
-    arrival_data.sort_by_key(|a| a.time_to_station);
+    arrival_data = ArrivalData::take_next_four(ArrivalData::sort_by_time(arrival_data));
 
     Ok(arrival_data)
 }

@@ -27,6 +27,7 @@ lazy_static! {
 pub struct StationConfig {
     pub id: String,
     pub name: String,
+    pub short_name: String,
     pub mode: String,
     pub services: Vec<ServiceConfig>,
 }
@@ -35,6 +36,7 @@ pub struct StationConfig {
 pub struct ServiceConfig {
     pub line: String,
     pub platform: String,
+    pub direction: Option<String>,
 }
 
 pub fn load_stations() -> Result<HashMap<String, StationConfig>, serde_yaml::Error> {
@@ -49,7 +51,7 @@ pub fn load_stations() -> Result<HashMap<String, StationConfig>, serde_yaml::Err
 pub struct ArrivalData {
     #[serde(rename = "expectedArrival")]
     pub expected_arrival: DateTime<Utc>,
-    #[serde(rename = "timeToStation", deserialize_with = "deserialize_minutes")]
+    #[serde(rename = "timeToStation", deserialize_with = "ArrivalData::deserialize_minutes")]
     pub time_to_station: i32,
     #[serde(rename = "destinationName")]
     pub destination_name: String,
@@ -57,10 +59,34 @@ pub struct ArrivalData {
     pub station: Option<StationConfig>,
 }
 
-fn deserialize_minutes<'de, D>(deserializer: D) -> Result<i32, D::Error>
-where
-    D: serde::Deserializer<'de>,
-{
-    let seconds: i32 = serde::Deserialize::deserialize(deserializer)?;
-    Ok(seconds / 60)
+impl ArrivalData {
+    fn deserialize_minutes<'de, D>(deserializer: D) -> Result<i32, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let seconds: i32 = serde::Deserialize::deserialize(deserializer)?;
+        Ok(seconds / 60)
+    }
+
+    pub fn take_next_four(arrivals: Vec<ArrivalData>) -> Vec<ArrivalData> {
+        arrivals.into_iter().take(4).collect()
+    }
+
+    pub fn sort_by_time(mut arrivals: Vec<ArrivalData>) -> Vec<ArrivalData> {
+        arrivals.sort_by_key(|a| a.time_to_station);
+        arrivals
+    }
 }
+
+
+impl std::fmt::Display for ArrivalData {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self.time_to_station {
+            0 => write!(f, "due"),
+            1 => write!(f, "1min"),
+            n => write!(f, "{}mins", n)
+        }
+    }
+}
+
+

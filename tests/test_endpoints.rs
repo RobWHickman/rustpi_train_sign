@@ -1,6 +1,6 @@
 use dotenv::dotenv;
 use std;
-use reqwest;
+use ureq;
 use rustpi_train_sign::{
     models::{BASE, StationConfig, load_stations},
     utils::{generate_url, UrlParams},
@@ -30,8 +30,8 @@ fn single_endpoint() {
 
     let request_url: String = generate_url(params).unwrap();
 
-    let response = reqwest::blocking::get(&request_url)
-        .expect("Failed to get response");
+    let response = ureq::get(&request_url)
+        .call()?;
 
     assert_eq!(response.status(), 200, "API request failed: {}", response.status());
 }
@@ -58,7 +58,7 @@ fn config_endpoints() {
         let request_url: String = generate_url(params).unwrap();
         println!("Requesting: {}", request_url);
 
-        match reqwest::blocking::get(&request_url) {
+        match ureq::get(&request_url).call() {
             Ok(response) => {
                 if response.status() != 200 {
                     println!("Station {} failed to retrieve data with response {}", station.name, response.status());
@@ -70,7 +70,6 @@ fn config_endpoints() {
                 all_passed = false;
             }
         }
-
     }
     
     assert!(all_passed, "Some failed");
